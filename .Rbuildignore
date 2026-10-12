@@ -1,0 +1,7 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^data_raw$
+^output$
+^MLP_Uebergabe_.*\.md$
+^\.claude$
+^README\.md$

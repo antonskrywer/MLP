@@ -1,0 +1,7 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+output/
+MLP_Uebergabe_*.md
+data_raw/MLP_bold_proposal_DE.html

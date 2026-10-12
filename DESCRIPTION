@@ -1,0 +1,23 @@
+Package: MLP
+Title: Musical Learning Protocol (DELTA-M) for psychTestR
+Version: 0.9.0
+Authors@R:
+    person("Anton", email = "das.schreiberle@gmail.com", role = c("aut", "cre"))
+Description: Implementation of the Musical Learning Protocol (MLP), a teacher
+    rating of instrumental pupils with criterion-, norm- and
+    individual-referenced levels. Based on the psychTestR library. Split off
+    from the 'psyquest' package so that it can be installed independently.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends:
+    R (>= 3.6.0)
+Imports:
+    htmltools (>= 0.5.0),
+    psychTestR (>= 2.22.0),
+    shiny (>= 1.5.0),
+    utils
+Suggests:
+    testthat (>= 2.3.2)
+Remotes: pmcharrison/psychTestR
+RoxygenNote: 7.3.3
