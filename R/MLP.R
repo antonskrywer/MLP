@@ -59,6 +59,7 @@ mlp_prompt <- function(prompt, progress, type = c("item", "choice", "text", "int
 #' L2 nur in der letzten Sitzung vor den Schulferien und L1 nur ab der
 #' zweiten Beurteilung eines Kindes angezeigt. In der Kurzskala erscheint für
 #' die Items des automatic-controlled-Blocks (0035 bis 0038) nur L3.
+#' Am Ende steht ein optionales Freitextfeld für Anmerkungen (de{comment}).
 #' Zwischenstände werden nach
 #' jedem Block gespeichert. Die Schüler-ID kommt über
 #' \code{MLP_standalone(with_id = TRUE)} (Feld \code{p_id}).
@@ -119,7 +120,7 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...) {
   pos_instrument <- pos_group + 2                                 # nach Gruppenwahl + Intro
   pos_automatic  <- pos_instrument + 3 * n_instr_max
   pos_practice   <- pos_automatic + length(automatic_levels) * length(automatic_items)
-  n_total        <- pos_practice + 1
+  n_total        <- pos_practice + 2
   pct <- function(pos) 100 * pos / n_total
 
   # Speichert die Antwort umkodiert (z.B. "CHOICE3" -> 3L, "yes"/"no")
@@ -197,10 +198,11 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...) {
   }
   yes_no <- function(answer) c(CHOICE1 = "yes", CHOICE2 = "no")[[answer]]
   level_number <- function(answer) as.integer(sub("CHOICE", "", answer))
-  mlp_text_page <- function(label, key, pos, validate = NULL) {
+  mlp_text_page <- function(label, key, pos, validate = NULL, one_line = TRUE) {
     psychTestR::text_input_page(
       label       = label,
       prompt      = mlp_prompt(psychTestR::i18n(key), pct(pos), "text"),
+      one_line    = one_line,
       width       = "100%",
       button_text = psychTestR::i18n("CONTINUE"),
       validate    = validate
@@ -328,6 +330,9 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...) {
     # Übungszeit, Minuten mit Validierung
     mlp_text_page("practice_pupil_min", "TMLP_PRACTICE_PUPIL_PROMPT", pos_practice, validate = num_validate),
     mlp_text_page("practice_teacher_min", "TMLP_PRACTICE_TEACHER_PROMPT", pos_practice + 1, validate = num_validate),
+
+    # optionale Anmerkung (darf leer bleiben)
+    mlp_text_page("comment", "TMLP_COMMENT_PROMPT", pos_practice + 2, one_line = FALSE),
 
     psychTestR::elt_save_results_to_disk(complete = TRUE),
     psychTestR::end_module()

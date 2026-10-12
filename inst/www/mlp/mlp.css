@@ -144,7 +144,8 @@ body.mlp #response_ui.mlp-locked .btn:not(.mlp-selected) { opacity: 0.55; }
 
 /* Texteingaben und Weiter-Button */
 body.mlp #psychTestR_content .form-group { width: 100% !important; margin-bottom: 16px; }
-body.mlp #psychTestR_content input[type="text"] {
+body.mlp #psychTestR_content input[type="text"],
+body.mlp #psychTestR_content textarea {
   width: 100% !important;
   height: 48px;
   font-size: 17px;          /* >= 16px verhindert Auto-Zoom auf iOS */
@@ -153,7 +154,9 @@ body.mlp #psychTestR_content input[type="text"] {
   border-radius: 12px;
   box-shadow: none;
 }
-body.mlp #psychTestR_content input[type="text"]:focus {
+body.mlp #psychTestR_content textarea { height: 140px; }
+body.mlp #psychTestR_content input[type="text"]:focus,
+body.mlp #psychTestR_content textarea:focus {
   border-color: var(--mlp-accent);
   box-shadow: 0 0 0 3px var(--mlp-accent-bg);
 }

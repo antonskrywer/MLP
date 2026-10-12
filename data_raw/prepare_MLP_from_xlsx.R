@@ -115,6 +115,7 @@ custom_dict <- tibble::tribble(
   "TMLP_NEW_PIECE_PROMPT",   "Hat der/die Schüler/in seit der letzten Beurteilung ein neues Hauptstück begonnen?",   "Has the pupil started a new main piece since the last assessment?",
   "TMLP_NEW_PIECE_CHOICE1",   "Ja",   "Yes",
   "TMLP_NEW_PIECE_CHOICE2",   "Nein",   "No",
+  "TMLP_COMMENT_PROMPT",   "Optional: Gibt es noch etwas, das Sie vermerken möchten? (Besondere Auffälligkeiten, Name des Stücks, ausgefallene Sitzungen etc.)",   "Optional: Is there anything else you would like to note? (Anything unusual, name of the piece, cancelled sessions etc.)",
   # Allgemeine Texte (ID-Seite, Schlussseite, Fußzeile); in psyquest kamen sie
   # aus general_dict.csv, hier in Sie-Form.
   "CONTINUE",          "Weiter",                                             "Continue",

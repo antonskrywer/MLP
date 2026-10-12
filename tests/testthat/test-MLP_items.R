@@ -28,7 +28,7 @@ test_that("Alle neuen MLP-Dictionary-Keys existieren in DE und EN", {
   keys <- c("TMLP_TEACHER_CODE_PROMPT", "TMLP_FIRSTTIME_PROMPT",
             "TMLP_PRE_HOLIDAY_PROMPT", paste0("TMLP_PRE_HOLIDAY_CHOICE", 1:2),
             "TMLP_VDM_LEVEL_PROMPT", paste0("TMLP_VDM_LEVEL_CHOICE", 1:5),
-            "TMLP_NEW_PIECE_PROMPT", paste0("TMLP_NEW_PIECE_CHOICE", 1:2),
+            "TMLP_NEW_PIECE_PROMPT", paste0("TMLP_NEW_PIECE_CHOICE", 1:2), "TMLP_COMMENT_PROMPT",
             # allgemeine Texte für ID-Seite, Schlussseite und Fußzeile
             "CONTINUE", "ENTER_ID", "E.G.", "RESULTS_SAVED", "CLOSE_BROWSER",
             paste0("PROBLEMS_INFO_", 1:3))
