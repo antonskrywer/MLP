@@ -32,7 +32,9 @@ Sitzung vor den Schulferien" ja/nein, VdM-Stufe der aktuellen Literatur,
 Hauptstückwechsel ja/nein, dann die Item-Blöcke. Bei einer Erstbeurteilung
 entfallen die Ferien- und die Hauptstückwechsel-Frage. Pro Item wird L3 immer,
 L2 nur in der letzten Sitzung vor den Schulferien und L1 nur ab der
-zweiten Beurteilung eines Kindes angezeigt. Zwischenstände werden nach
+zweiten Beurteilung eines Kindes angezeigt. In der Kurzskala erscheint für
+die Items des automatic-controlled-Blocks (0035 bis 0038) nur L3.
+Zwischenstände werden nach
 jedem Block gespeichert. Die Schüler-ID kommt über
 \code{MLP_standalone(with_id = TRUE)} (Feld \code{p_id}).
 

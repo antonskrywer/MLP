@@ -57,7 +57,9 @@ mlp_prompt <- function(prompt, progress, type = c("item", "choice", "text", "int
 #' Hauptstückwechsel ja/nein, dann die Item-Blöcke. Bei einer Erstbeurteilung
 #' entfallen die Ferien- und die Hauptstückwechsel-Frage. Pro Item wird L3 immer,
 #' L2 nur in der letzten Sitzung vor den Schulferien und L1 nur ab der
-#' zweiten Beurteilung eines Kindes angezeigt. Zwischenstände werden nach
+#' zweiten Beurteilung eines Kindes angezeigt. In der Kurzskala erscheint für
+#' die Items des automatic-controlled-Blocks (0035 bis 0038) nur L3.
+#' Zwischenstände werden nach
 #' jedem Block gespeichert. Die Schüler-ID kommt über
 #' \code{MLP_standalone(with_id = TRUE)} (Feld \code{p_id}).
 #'
@@ -95,6 +97,10 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...) {
     item_ids[item_ids %in% mlp_shortscale_items]
   }
 
+  # Kurzskala: im automatic-controlled-Block nur die kriterienbezogene Ebene
+  # (L3), auch wenn L2/L1 in der Sitzung sonst gezeigt würden.
+  automatic_levels <- if (isTRUE(shortscale)) "L3" else c("L3", "L2", "L1")
+
   item_lists       <- mlp_item_lists()
   general_items    <- mlp_apply_shortscale(item_lists$general)
   technique_items  <- mlp_apply_shortscale(item_lists$technique)
@@ -112,7 +118,7 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...) {
   pos_group      <- pos_expression + 3 * length(expression_items)
   pos_instrument <- pos_group + 2                                 # nach Gruppenwahl + Intro
   pos_automatic  <- pos_instrument + 3 * n_instr_max
-  pos_practice   <- pos_automatic + 3 * length(automatic_items)
+  pos_practice   <- pos_automatic + length(automatic_levels) * length(automatic_items)
   n_total        <- pos_practice + 1
   pct <- function(pos) 100 * pos / n_total
 
@@ -128,8 +134,8 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...) {
   # L3 wird immer gezeigt, L2 nur in der letzten Sitzung vor den
   # Schulferien (Local "pre_holiday"), L1 nur ab der zweiten Beurteilung
   # eines Kindes (Local "first_time" == FALSE).
-  mlp_item_pages <- function(item_id, pos) {
-    lvls <- c("L3", "L2", "L1")
+  # `lvls` schränkt die Ebenen eines Items ein (Standard: alle drei).
+  mlp_item_pages <- function(item_id, pos, lvls = c("L3", "L2", "L1")) {
     lapply(seq_along(lvls), function(j) {
       lvl <- lvls[j]
       prefix <- paste0("TMLP_", item_id, "_", lvl)
@@ -159,10 +165,10 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...) {
   }
   # conditional() liefert eine Liste von Elementen, eine Seite ist selbst ein
   # Element -> auf eine flache Liste von Test-Elementen bringen.
-  mlp_block_pages <- function(item_ids, pos) {
+  mlp_block_pages <- function(item_ids, pos, lvls = c("L3", "L2", "L1")) {
     flat <- list()
     for (k in seq_along(item_ids)) {
-      for (el in mlp_item_pages(item_ids[k], pos + 3 * (k - 1))) {
+      for (el in mlp_item_pages(item_ids[k], pos + length(lvls) * (k - 1), lvls)) {
         if (is.null(attr(el, "class"))) flat <- c(flat, el)   # conditional(): einfache Liste
         else flat <- c(flat, list(el))                        # einzelne Seite
       }
@@ -316,7 +322,7 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...) {
     mlp_save_partial(),
 
     # automatic-controlled
-    mlp_block_pages(automatic_items, pos_automatic),
+    mlp_block_pages(automatic_items, pos_automatic, automatic_levels),
     mlp_save_partial(),
 
     # Übungszeit, Minuten mit Validierung
