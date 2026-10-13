@@ -62,7 +62,7 @@ mlp_prompt <- function(prompt, progress, type = c("item", "choice", "text", "int
 #' L2 nur in der letzten Sitzung vor den Schulferien und L1 nur ab der
 #' zweiten Beurteilung eines Kindes angezeigt. In der Kurzskala erscheint für
 #' die Items des automatic-controlled-Blocks (0035 bis 0038) nur L3.
-#' Am Ende steht ein optionales Freitextfeld für Anmerkungen (de{comment}).
+#' Am Ende steht ein optionales Freitextfeld für Anmerkungen (\code{comment}).
 #' Zwischenstände werden nach
 #' jedem Block gespeichert. Die Schüler-ID kommt über
 #' \code{MLP_standalone(with_id = TRUE)} (Feld \code{p_id}).
