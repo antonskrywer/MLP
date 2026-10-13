@@ -4,7 +4,13 @@
 \alias{MLP}
 \title{MLP}
 \usage{
-MLP(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...)
+MLP(
+  label = "MLP",
+  dict = MLP::mlp_dict,
+  shortscale = FALSE,
+  back_from_first = FALSE,
+  ...
+)
 }
 \arguments{
 \item{label}{(Character scalar) Label für die Ergebnisse in der Ausgabedatei.}
@@ -15,6 +21,10 @@ MLP(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...)
 angezeigt (feste Liste \code{mlp_shortscale_items} im Funktionskörper,
 von Hand aus der Spalte "shortscale" in MLP_Itembank_3Ebenen.xlsx
 abgeleitet). Standard: FALSE (alle Items).}
+
+\item{back_from_first}{(Logical) Zurück-Button auch auf der ersten Seite
+(Willkommen) zeigen. Nur sinnvoll, wenn davor eine Seite mit
+Zurück-Unterstützung liegt, wie die ID-Seite in \code{MLP_standalone()}.}
 
 \item{...}{Weitere Argumente.}
 }
@@ -41,6 +51,9 @@ jedem Block gespeichert. Die Schüler-ID kommt über
 
 Design: Antworten erscheinen als Karten (5-stufige Items nummeriert),
 eine angetippte Karte wird kurz markiert, dann folgt die nächste Seite.
-Oben zeigt ein Balken den ungefähren Fortschritt. CSS/JS liegen in
+Oben zeigt ein Balken den ungefähren Fortschritt. Unter den Antworten
+führt ein Zurück-Link zur vorherigen Seite; die frühere Antwort ist dort
+markiert bzw. vorausgefüllt, Antworten ab dieser Seite werden neu gegeben.
+CSS/JS liegen in
 \code{inst/www/mlp} und greifen nur auf MLP-Seiten.
 }

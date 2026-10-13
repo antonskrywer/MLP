@@ -98,8 +98,8 @@ custom_dict <- tibble::tribble(
   "TMLP_INSTRUMENT_GROUP_CHOICE3",  "Klavier",                                                                  "Piano",
   "TMLP_INSTRUMENT_GROUP_CHOICE4",  "Gitarre",                                                                  "Guitar",
   "TMLP_INSTRUMENT_GROUP_CHOICE5",  "Streichinstrument",                                                        "Strings",
-  "TMLP_PRACTICE_PUPIL_PROMPT",     "Frage die Schülerin/den Schüler: Wie viele Minuten wurde in der letzten Woche durchschnittlich pro Tag geübt?", "Ask the pupil: On average, how many minutes per day did he or she practice in the last week?",
-  "TMLP_PRACTICE_TEACHER_PROMPT",   "Wie viele Minuten pro Tag, schätzen Sie, hat der/die Schüler/in geübt?", "For how many minutes per day do you think the pupil practiced?",
+  "TMLP_PRACTICE_PUPIL_PROMPT",     "Fragen Sie die Schülerin/den Schüler: Wie viele Minuten wurde in der letzten Woche im Durchschnitt pro Tag geübt?", "Ask the pupil: On average, how many minutes per day did he or she practice in the last week?",
+  "TMLP_PRACTICE_TEACHER_PROMPT",   "Wie viele Minuten hat der/die Schüler/in Ihrer Einschätzung nach in der letzten Woche im Durchschnitt pro Tag geübt?", "In your estimation, how many minutes per day did the pupil practice on average in the last week?",
   "TMLP_AGE_PROMPT",                "Wie alt ist der/die Schüler/in?",                                         "How old is the pupil?",
   "TMLP_INSTRUMENT_PROMPT",         "Welches Instrument lernt der/die Schüler/in?",                            "What instrument is the pupil learning?",
   "TMLP_TEACHER_CODE_PROMPT",   "Bitte geben Sie Ihren Lehrkraft-Code ein.",   "Please enter your teacher code.",
@@ -119,6 +119,8 @@ custom_dict <- tibble::tribble(
   # Allgemeine Texte (ID-Seite, Schlussseite, Fußzeile); in psyquest kamen sie
   # aus general_dict.csv, hier in Sie-Form.
   "CONTINUE",          "Weiter",                                             "Continue",
+  "BACK",              "← Zurück",                                           "← Back",
+  "INVALID_ID",        "Dieser Schüler-Code ist nicht gültig. Bitte prüfen Sie die Eingabe.", "This pupil code is not valid. Please check your entry.",
   "ENTER_ID",          "Bitte geben Sie den Schüler-Code ein.",              "Please enter the pupil code.",
   "E.G.",              "z.B.",                                               "e.g.",
   "RESULTS_SAVED",     "Ihre Ergebnisse wurden gespeichert.",                "Your results have been saved.",

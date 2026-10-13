@@ -31,7 +31,8 @@ MLP_standalone(
 diese Adresse unten auf der Seite als Kontakt bei Problemen.}
 
 \item{validate_id}{(Closure oder "auto") Funktion zur Prüfung des
-Schüler-Codes; "auto" erlaubt Buchstaben, Ziffern und Unterstrich.}
+Schüler-Codes; "auto" verlangt Ziffern, deren letzte beide die
+Quersumme der Ziffern davor sind (z.B. 4711 -> \code{471113}).}
 
 \item{...}{Weitere Argumente an \code{psychTestR::test_options()}.}
 }
@@ -45,5 +46,6 @@ nutzen das MLP-Design aus \code{inst/www/mlp}.
 }
 \details{
 Derselbe Schüler-Code beginnt jedes Mal eine neue Sitzung; eine frühere
-Sitzung wird nicht fortgesetzt.
+Sitzung wird nicht fortgesetzt. Von der ersten MLP-Seite führt der
+Zurück-Link zur Code-Eingabe.
 }

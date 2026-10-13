@@ -21,14 +21,15 @@ mlp_problems_info <- function(researcher_email, dict, languages) {
 mlp_id_page <- function(validate_id = "auto") {
   if (identical(validate_id, "auto")) {
     validate_id <- function(answer, ...) {
-      if (grepl("^[A-Za-z0-9_]{1,100}$", trimws(answer))) TRUE
-      else "Bitte nur Ziffern und Buchstaben eingeben. / Please use only letters and digits."
+      if (mlp_valid_id(answer)) TRUE else psychTestR::i18n("INVALID_ID")
     }
   }
-  psychTestR::text_input_page(
+  # mlp_page(): Der Code wird gemerkt und nach "Zurück" von der ersten
+  # MLP-Seite wieder vorausgefüllt.
+  mlp_page(psychTestR::text_input_page(
     label       = "p_id",
-    prompt      = psychTestR::i18n("ENTER_ID"),
-    placeholder = paste(psychTestR::i18n("E.G."), "10492817"),
+    prompt      = shiny::div(`data-mlp-label` = "p_id", psychTestR::i18n("ENTER_ID")),
+    placeholder = paste(psychTestR::i18n("E.G."), "471113"),
     button_text = psychTestR::i18n("CONTINUE"),
     save_answer = FALSE,
     validate    = validate_id,
@@ -36,7 +37,17 @@ mlp_id_page <- function(validate_id = "auto") {
       set_p_id <- utils::getFromNamespace("p_id<-", "psychTestR")
       set_p_id(state, trimws(answer))
     }
-  )
+  ), back = FALSE)
+}
+
+# Schüler-Code: nur Ziffern, die letzten beiden sind die Quersumme der
+# Ziffern davor mit führender Null (4711 -> Quersumme 13 -> "471113").
+mlp_valid_id <- function(id) {
+  id <- trimws(id)
+  if (!grepl("^[0-9]{3,100}$", id)) return(FALSE)
+  digits <- as.integer(strsplit(id, "")[[1]])
+  n <- length(digits)
+  sprintf("%02d", sum(digits[seq_len(n - 2)])) == substr(id, n - 1, n)
 }
 
 #' MLP Standalone
@@ -49,7 +60,8 @@ mlp_id_page <- function(validate_id = "auto") {
 #' nutzen das MLP-Design aus \code{inst/www/mlp}.
 #'
 #' Derselbe Schüler-Code beginnt jedes Mal eine neue Sitzung; eine frühere
-#' Sitzung wird nicht fortgesetzt.
+#' Sitzung wird nicht fortgesetzt. Von der ersten MLP-Seite führt der
+#' Zurück-Link zur Code-Eingabe.
 #'
 #' @param languages (Character vector) Verfügbare Sprachen (\code{"de"},
 #'   \code{"en"}), Standard ist die erste.
@@ -60,7 +72,8 @@ mlp_id_page <- function(validate_id = "auto") {
 #' @param researcher_email (Character scalar) Wenn nicht \code{NULL}, erscheint
 #'   diese Adresse unten auf der Seite als Kontakt bei Problemen.
 #' @param validate_id (Closure oder "auto") Funktion zur Prüfung des
-#'   Schüler-Codes; "auto" erlaubt Buchstaben, Ziffern und Unterstrich.
+#'   Schüler-Codes; "auto" verlangt Ziffern, deren letzte beide die
+#'   Quersumme der Ziffern davor sind (z.B. 4711 -> \code{471113}).
 #' @param ... Weitere Argumente an \code{psychTestR::test_options()}.
 #' @export
 MLP_standalone <- function(languages = c("de", "en"),
@@ -74,7 +87,7 @@ MLP_standalone <- function(languages = c("de", "en"),
   stopifnot(is.character(languages), all(languages %in% c("de", "en")))
   elts <- psychTestR::join(
     if (with_id) psychTestR::new_timeline(mlp_id_page(validate_id), dict = dict),
-    MLP(dict = dict, shortscale = shortscale),
+    MLP(dict = dict, shortscale = shortscale, back_from_first = with_id),
     psychTestR::new_timeline(psychTestR::final_page(
       shiny::p(
         psychTestR::i18n("RESULTS_SAVED"),

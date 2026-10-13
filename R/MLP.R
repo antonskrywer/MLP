@@ -30,12 +30,15 @@ mlp_design_dependency <- function() {
 # Hülle für jede MLP-Seite: Design-Assets, Fortschrittsbalken und Fragetext.
 # `type` steuert das Aussehen: "item" (5 nummerierte Stufenkarten),
 # "choice" (Karten ohne Nummer), "text" (Eingabefeld), "intro" (Infoseite).
-mlp_prompt <- function(prompt, progress, type = c("item", "choice", "text", "intro")) {
+# `label` (data-mlp-label) ordnet in mlp.js eine frühere Antwort der Seite zu.
+mlp_prompt <- function(prompt, progress, type = c("item", "choice", "text", "intro"),
+                       label = NULL) {
   type <- match.arg(type)
   classes <- paste(c("mlp-page", paste0("mlp-", type),
                      if (type == "item") "mlp-numbered"), collapse = " ")
   shiny::div(
     class = classes,
+    `data-mlp-label` = label,
     mlp_design_dependency(),
     shiny::div(class = "mlp-progress",
                shiny::div(style = sprintf("width: %d%%;", as.integer(round(progress))))),
@@ -66,7 +69,10 @@ mlp_prompt <- function(prompt, progress, type = c("item", "choice", "text", "int
 #'
 #' Design: Antworten erscheinen als Karten (5-stufige Items nummeriert),
 #' eine angetippte Karte wird kurz markiert, dann folgt die nächste Seite.
-#' Oben zeigt ein Balken den ungefähren Fortschritt. CSS/JS liegen in
+#' Oben zeigt ein Balken den ungefähren Fortschritt. Unter den Antworten
+#' führt ein Zurück-Link zur vorherigen Seite; die frühere Antwort ist dort
+#' markiert bzw. vorausgefüllt, Antworten ab dieser Seite werden neu gegeben.
+#' CSS/JS liegen in
 #' \code{inst/www/mlp} und greifen nur auf MLP-Seiten.
 #'
 #' @param label (Character scalar) Label für die Ergebnisse in der Ausgabedatei.
@@ -75,9 +81,13 @@ mlp_prompt <- function(prompt, progress, type = c("item", "choice", "text", "int
 #'   angezeigt (feste Liste \code{mlp_shortscale_items} im Funktionskörper,
 #'   von Hand aus der Spalte "shortscale" in MLP_Itembank_3Ebenen.xlsx
 #'   abgeleitet). Standard: FALSE (alle Items).
+#' @param back_from_first (Logical) Zurück-Button auch auf der ersten Seite
+#'   (Willkommen) zeigen. Nur sinnvoll, wenn davor eine Seite mit
+#'   Zurück-Unterstützung liegt, wie die ID-Seite in \code{MLP_standalone()}.
 #' @param ... Weitere Argumente.
 #' @export
-MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...) {
+MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE,
+                back_from_first = FALSE, ...) {
 
   # Kurzskalen-Filter: feste Liste der Item-IDs mit shortscale == "T" in
   # MLP_Itembank_3Ebenen.xlsx. Bei shortscale = TRUE werden nur diese Items
@@ -140,15 +150,15 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...) {
     lapply(seq_along(lvls), function(j) {
       lvl <- lvls[j]
       prefix <- paste0("TMLP_", item_id, "_", lvl)
-      page <- psychTestR::NAFC_page(
+      page <- mlp_page(psychTestR::NAFC_page(
         label       = prefix,
-        prompt      = mlp_prompt(psychTestR::i18n(paste0(prefix, "_PROMPT")), pct(pos + j - 1), "item"),
+        prompt      = mlp_prompt(psychTestR::i18n(paste0(prefix, "_PROMPT")), pct(pos + j - 1), "item", prefix),
         choices     = paste0("CHOICE", 1:5),
         labels      = sapply(1:5, function(k) psychTestR::i18n(paste0(prefix, "_CHOICE", k))),
         save_answer = FALSE,
         arrange_vertically = TRUE,
         on_complete = mlp_save_recoded(prefix, level_number)
-      )
+      ))
       if (lvl == "L2") {
         psychTestR::conditional(
           test  = function(state, ...) isTRUE(psychTestR::get_local("pre_holiday", state)),
@@ -180,9 +190,9 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...) {
   # Ja/Nein- bzw. Auswahlseite ohne Stufennummern
   # `recode`: Funktion CHOICEk -> gespeicherter Wert (statt "CHOICEk")
   mlp_choice_page <- function(label, key, n_choices, pos, on_complete = NULL, recode = NULL) {
-    psychTestR::NAFC_page(
+    mlp_page(psychTestR::NAFC_page(
       label   = label,
-      prompt  = mlp_prompt(psychTestR::i18n(paste0(key, "_PROMPT")), pct(pos), "choice"),
+      prompt  = mlp_prompt(psychTestR::i18n(paste0(key, "_PROMPT")), pct(pos), "choice", label),
       choices = paste0("CHOICE", seq_len(n_choices)),
       labels  = lapply(seq_len(n_choices), function(k) psychTestR::i18n(paste0(key, "_CHOICE", k))),
       save_answer = is.null(recode),
@@ -194,25 +204,25 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...) {
           if (!is.null(on_complete)) on_complete(answer, state, ...)
         }
       }
-    )
+    ))
   }
   yes_no <- function(answer) c(CHOICE1 = "yes", CHOICE2 = "no")[[answer]]
   level_number <- function(answer) as.integer(sub("CHOICE", "", answer))
   mlp_text_page <- function(label, key, pos, validate = NULL, one_line = TRUE) {
-    psychTestR::text_input_page(
+    mlp_page(psychTestR::text_input_page(
       label       = label,
-      prompt      = mlp_prompt(psychTestR::i18n(key), pct(pos), "text"),
+      prompt      = mlp_prompt(psychTestR::i18n(key), pct(pos), "text", label),
       one_line    = one_line,
       width       = "100%",
       button_text = psychTestR::i18n("CONTINUE"),
       validate    = validate
-    )
+    ))
   }
-  mlp_intro_page <- function(key, pos) {
-    psychTestR::one_button_page(
+  mlp_intro_page <- function(key, pos, back = TRUE) {
+    mlp_page(psychTestR::one_button_page(
       body        = mlp_prompt(psychTestR::i18n(key), pct(pos), "intro"),
       button_text = psychTestR::i18n("CONTINUE")
-    )
+    ), back = back)
   }
   mlp_instrument_block <- function(group) {
     psychTestR::conditional(
@@ -238,7 +248,7 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE, ...) {
     psychTestR::begin_module(label = label),
 
     # 1) Welcome
-    mlp_intro_page("TMLP_0001_PROMPT", 0),
+    mlp_intro_page("TMLP_0001_PROMPT", 0, back = back_from_first),
 
     # 2) Lehrkraft-Code (Pflichtfeld). Der Schüler-Code kommt über p_id,
     #    siehe MLP_standalone(with_id = TRUE).

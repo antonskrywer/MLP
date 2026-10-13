@@ -142,6 +142,26 @@ body.mlp #response_ui .btn.mlp-selected .mlp-num {
 }
 body.mlp #response_ui.mlp-locked .btn:not(.mlp-selected) { opacity: 0.55; }
 
+/* Frühere Antwort nach "Zurück": wie gewählt markiert, bis neu getippt wird */
+body.mlp #response_ui .btn.mlp-prev {
+  border: 2px solid var(--lv, var(--mlp-accent)) !important;
+  background: var(--lv-bg, var(--mlp-accent-bg)) !important;
+  padding: 11px 13px !important;
+}
+
+/* Zurück-Link unter den Antworten bzw. dem Weiter-Button */
+body.mlp .mlp-back { text-align: left; margin-top: 6px; }
+body.mlp #mlp_back {
+  padding: 10px 4px;
+  font-size: 15px;
+  color: var(--mlp-muted);
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+body.mlp #mlp_back:focus { outline: none; }
+body.mlp #mlp_back:focus-visible { box-shadow: 0 0 0 3px var(--mlp-accent-bg); }
+
 /* Texteingaben und Weiter-Button */
 body.mlp #psychTestR_content .form-group { width: 100% !important; margin-bottom: 16px; }
 body.mlp #psychTestR_content input[type="text"],

@@ -30,7 +30,7 @@ test_that("Alle neuen MLP-Dictionary-Keys existieren in DE und EN", {
             "TMLP_VDM_LEVEL_PROMPT", paste0("TMLP_VDM_LEVEL_CHOICE", 1:5),
             "TMLP_NEW_PIECE_PROMPT", paste0("TMLP_NEW_PIECE_CHOICE", 1:2), "TMLP_COMMENT_PROMPT",
             # allgemeine Texte für ID-Seite, Schlussseite und Fußzeile
-            "CONTINUE", "ENTER_ID", "E.G.", "RESULTS_SAVED", "CLOSE_BROWSER",
+            "CONTINUE", "BACK", "INVALID_ID", "ENTER_ID", "E.G.", "RESULTS_SAVED", "CLOSE_BROWSER",
             paste0("PROBLEMS_INFO_", 1:3))
   for (k in keys) {
     for (lang in c("de", "en")) {
@@ -38,4 +38,15 @@ test_that("Alle neuen MLP-Dictionary-Keys existieren in DE und EN", {
       expect_true(nchar(txt) > 0, info = paste(k, lang))
     }
   }
+})
+
+test_that("Schüler-Code: die letzten beiden Ziffern sind die Quersumme", {
+  expect_true(MLP:::mlp_valid_id("471113"))
+  expect_true(MLP:::mlp_valid_id("100203"))
+  expect_true(MLP:::mlp_valid_id(" 000 "))
+  expect_false(MLP:::mlp_valid_id("471114"))
+  expect_false(MLP:::mlp_valid_id("10023"))    # Quersumme ohne führende Null
+  expect_false(MLP:::mlp_valid_id("13"))
+  expect_false(MLP:::mlp_valid_id("47a113"))
+  expect_false(MLP:::mlp_valid_id(""))
 })
