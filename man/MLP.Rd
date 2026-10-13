@@ -24,7 +24,7 @@ abgeleitet). Standard: FALSE (alle Items).}
 
 \item{back_from_first}{(Logical) Zurück-Button auch auf der ersten Seite
 (Willkommen) zeigen. Nur sinnvoll, wenn davor eine Seite mit
-Zurück-Unterstützung liegt, wie die ID-Seite in \code{MLP_standalone()}.}
+Zurück-Unterstützung liegt, wie die ID-Seite in \code{MLP_standalone()}.}
 
 \item{...}{Weitere Argumente.}
 }

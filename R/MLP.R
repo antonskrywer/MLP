@@ -83,7 +83,7 @@ mlp_prompt <- function(prompt, progress, type = c("item", "choice", "text", "int
 #'   abgeleitet). Standard: FALSE (alle Items).
 #' @param back_from_first (Logical) Zurück-Button auch auf der ersten Seite
 #'   (Willkommen) zeigen. Nur sinnvoll, wenn davor eine Seite mit
-#'   Zurück-Unterstützung liegt, wie die ID-Seite in \code{MLP_standalone()}.
+#'   Zurück-Unterstützung liegt, wie die ID-Seite in \code{MLP_standalone()}.
 #' @param ... Weitere Argumente.
 #' @export
 MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE,
