@@ -18,17 +18,16 @@ mlp_problems_info <- function(researcher_email, dict, languages) {
 # gespeicherte Sitzung mit derselben ID fort. Im Längsschnitt wird derselbe
 # Schüler-Code bei jeder Beurteilung wieder eingegeben, man landete so auf der
 # Schlussseite der letzten Sitzung, statt eine neue Beurteilung zu beginnen.
-mlp_id_page <- function(validate_id = "auto") {
+mlp_id_page <- function(validate_id = "auto", prompt) {
   if (identical(validate_id, "auto")) {
     validate_id <- function(answer, ...) {
       if (mlp_valid_id(answer)) TRUE else psychTestR::i18n("INVALID_ID")
     }
   }
-  # mlp_page(): Der Code wird gemerkt und nach "Zurück" von der ersten
-  # MLP-Seite wieder vorausgefüllt.
+  # mlp_page(): Der Code wird gemerkt und nach "Zurück" wieder vorausgefüllt.
   mlp_page(psychTestR::text_input_page(
     label       = "p_id",
-    prompt      = shiny::div(`data-mlp-label` = "p_id", psychTestR::i18n("ENTER_ID")),
+    prompt      = prompt,
     placeholder = paste(psychTestR::i18n("E.G."), "471113"),
     button_text = psychTestR::i18n("CONTINUE"),
     save_answer = FALSE,
@@ -37,7 +36,7 @@ mlp_id_page <- function(validate_id = "auto") {
       set_p_id <- utils::getFromNamespace("p_id<-", "psychTestR")
       set_p_id(state, trimws(answer))
     }
-  ), back = FALSE)
+  ))
 }
 
 # Schüler-Code: nur Ziffern, die letzten beiden sind die Quersumme der
@@ -59,9 +58,10 @@ mlp_valid_id <- function(id) {
 #' Im Kopf erscheint das UHH-Logo, alle Seiten (auch ID- und Schlussseite)
 #' nutzen das MLP-Design aus \code{inst/www/mlp}.
 #'
-#' Derselbe Schüler-Code beginnt jedes Mal eine neue Sitzung; eine frühere
-#' Sitzung wird nicht fortgesetzt. Von der ersten MLP-Seite führt der
-#' Zurück-Link zur Code-Eingabe.
+#' Der Lehrkraft-Code wird vor dem Schüler-Code abgefragt. Derselbe Schüler-Code
+#' beginnt jedes Mal eine neue Sitzung; eine frühere Sitzung wird nicht
+#' fortgesetzt, die Ergebnisdateien dienen nur der Wiedererkennung von
+#' Lehrkraft und Instrumentengruppe.
 #'
 #' @param languages (Character vector) Verfügbare Sprachen (\code{"de"},
 #'   \code{"en"}), Standard ist die erste.
@@ -86,8 +86,7 @@ MLP_standalone <- function(languages = c("de", "en"),
                            ...) {
   stopifnot(is.character(languages), all(languages %in% c("de", "en")))
   elts <- psychTestR::join(
-    if (with_id) psychTestR::new_timeline(mlp_id_page(validate_id), dict = dict),
-    MLP(dict = dict, shortscale = shortscale, back_from_first = with_id),
+    MLP(dict = dict, shortscale = shortscale, with_id = with_id, validate_id = validate_id),
     psychTestR::new_timeline(psychTestR::final_page(
       shiny::p(
         psychTestR::i18n("RESULTS_SAVED"),

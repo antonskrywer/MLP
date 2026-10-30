@@ -29,6 +29,14 @@ test_that("Alle neuen MLP-Dictionary-Keys existieren in DE und EN", {
             "TMLP_PRE_HOLIDAY_PROMPT", paste0("TMLP_PRE_HOLIDAY_CHOICE", 1:2),
             "TMLP_VDM_LEVEL_PROMPT", paste0("TMLP_VDM_LEVEL_CHOICE", 1:5),
             "TMLP_NEW_PIECE_PROMPT", paste0("TMLP_NEW_PIECE_CHOICE", 1:2), "TMLP_COMMENT_PROMPT",
+            # Instruktion beim ersten Ausfüllen
+            paste0("TMLP_GUIDE_", c("FLOW_TITLE", "FLOW_INTRO", "START_TITLE", "START_TEXT", "PARTS",
+                                    paste0("PART", 1:3, "_TITLE"), paste0("PART", 1:3, "_TEXT"),
+                                    "END_TITLE", "END_TEXT", "PRACTICE", "PERSPECTIVES",
+                                    paste0("COL", 1:3), paste0("ROW", 1:3), "YES", "NO",
+                                    "BENEFIT_TITLE", paste0("BENEFIT", 1:3, "_TITLE"),
+                                    paste0("BENEFIT", 1:3, "_TEXT"),
+                                    "NOTE_TIME", "NOTE_BACK", "GO")),
             # allgemeine Texte für ID-Seite, Schlussseite und Fußzeile
             "CONTINUE", "BACK", "INVALID_ID", "ENTER_ID", "E.G.", "RESULTS_SAVED", "CLOSE_BROWSER",
             paste0("PROBLEMS_INFO_", 1:3))

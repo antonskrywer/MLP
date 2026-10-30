@@ -8,7 +8,8 @@ MLP(
   label = "MLP",
   dict = MLP::mlp_dict,
   shortscale = FALSE,
-  back_from_first = FALSE,
+  with_id = FALSE,
+  validate_id = "auto",
   ...
 )
 }
@@ -22,9 +23,11 @@ angezeigt (feste Liste \code{mlp_shortscale_items} im Funktionskörper,
 von Hand aus der Spalte "shortscale" in MLP_Itembank_3Ebenen.xlsx
 abgeleitet). Standard: FALSE (alle Items).}
 
-\item{back_from_first}{(Logical) Zurück-Button auch auf der ersten Seite
-(Willkommen) zeigen. Nur sinnvoll, wenn davor eine Seite mit
-Zurück-Unterstützung liegt, wie die ID-Seite in \code{MLP_standalone()}.}
+\item{with_id}{(Logical) Schüler-Code nach dem Lehrkraft-Code abfragen und
+als \code{p_id} setzen. Standard: FALSE (die Batterie vergibt die ID).}
+
+\item{validate_id}{(Closure oder "auto") Prüfung des Schüler-Codes, siehe
+\code{\link{MLP_standalone}()}.}
 
 \item{...}{Weitere Argumente.}
 }
@@ -37,17 +40,20 @@ Hand gebaut (nicht \code{main_test()}), da MLP mehrstufige Items
 Instrumenten-Block und eine bedingte Sozio-Demografie-Sektion enthält.
 }
 \details{
-Ablauf pro Sitzung: Lehrkraft-Code, Erstbeurteilung ja/nein, "letzte
+Ablauf pro Sitzung: Lehrkraft-Code, Schüler-Code, beim ersten Ausfüllen einer
+Lehrkraft die Instruktion, Erstbeurteilung ja/nein, "letzte
 Sitzung vor den Schulferien" ja/nein, VdM-Stufe der aktuellen Literatur,
 Hauptstückwechsel ja/nein, dann die Item-Blöcke. Bei einer Erstbeurteilung
-entfallen die Ferien- und die Hauptstückwechsel-Frage. Pro Item wird L3 immer,
+entfallen die Ferien- und die Hauptstückwechsel-Frage. Die Auswahl der
+Instrumentengruppe entfällt bei einer Folgebeurteilung, wenn eine frühere
+Sitzung derselben Kombination aus Lehrkraft- und Schüler-Code die Gruppe
+enthält. Pro Item wird L3 immer,
 L2 nur in der letzten Sitzung vor den Schulferien und L1 nur ab der
 zweiten Beurteilung eines Kindes angezeigt. In der Kurzskala erscheint für
 die Items des automatic-controlled-Blocks (0035 bis 0038) nur L3.
 Am Ende steht ein optionales Freitextfeld für Anmerkungen (\code{comment}).
 Zwischenstände werden nach
-jedem Block gespeichert. Die Schüler-ID kommt über
-\code{MLP_standalone(with_id = TRUE)} (Feld \code{p_id}).
+jedem Block gespeichert. Der Schüler-Code wird als \code{p_id} gespeichert.
 
 Design: Antworten erscheinen als Karten (5-stufige Items nummeriert),
 eine angetippte Karte wird kurz markiert, dann folgt die nächste Seite.

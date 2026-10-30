@@ -45,7 +45,8 @@ Im Kopf erscheint das UHH-Logo, alle Seiten (auch ID- und Schlussseite)
 nutzen das MLP-Design aus \code{inst/www/mlp}.
 }
 \details{
-Derselbe Schüler-Code beginnt jedes Mal eine neue Sitzung; eine frühere
-Sitzung wird nicht fortgesetzt. Von der ersten MLP-Seite führt der
-Zurück-Link zur Code-Eingabe.
+Der Lehrkraft-Code wird vor dem Schüler-Code abgefragt. Derselbe Schüler-Code
+beginnt jedes Mal eine neue Sitzung; eine frühere Sitzung wird nicht
+fortgesetzt, die Ergebnisdateien dienen nur der Wiedererkennung von
+Lehrkraft und Instrumentengruppe.
 }

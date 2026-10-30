@@ -21,6 +21,12 @@ MLP_standalone(languages = "de", shortscale = TRUE)
 
 Als Baustein in einer eigenen psychTestR-Timeline: `MLP::MLP()`.
 
+Die App liest beim Start einer Sitzung die Ergebnisdateien in `output/results`.
+Eine neue Lehrkraft sieht einmalig die Instruktion. Bei Folgebeurteilungen
+kommt die Instrumentengruppe aus der letzten Sitzung derselben Kombination aus
+Lehrkraft- und Schüler-Code. Dieser Ordner muss deshalb zwischen Updates
+erhalten bleiben.
+
 ## Texte ändern
 
 Die Texte stehen in `data_raw/MLP_Itembank_3Ebenen.xlsx` (Items) und in

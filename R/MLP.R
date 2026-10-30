@@ -29,9 +29,10 @@ mlp_design_dependency <- function() {
 
 # Hülle für jede MLP-Seite: Design-Assets, Fortschrittsbalken und Fragetext.
 # `type` steuert das Aussehen: "item" (5 nummerierte Stufenkarten),
-# "choice" (Karten ohne Nummer), "text" (Eingabefeld), "intro" (Infoseite).
+# "choice" (Karten ohne Nummer), "text" (Eingabefeld), "intro" (Infoseite),
+# "guide" (Instruktion, bringt eigene Karten mit).
 # `label` (data-mlp-label) ordnet in mlp.js eine frühere Antwort der Seite zu.
-mlp_prompt <- function(prompt, progress, type = c("item", "choice", "text", "intro"),
+mlp_prompt <- function(prompt, progress, type = c("item", "choice", "text", "intro", "guide"),
                        label = NULL) {
   type <- match.arg(type)
   classes <- paste(c("mlp-page", paste0("mlp-", type),
@@ -55,17 +56,20 @@ mlp_prompt <- function(prompt, progress, type = c("item", "choice", "text", "int
 #' (individuums-/norm-/kriterienbezogen: L1/L2/L3), einen bedingten
 #' Instrumenten-Block und eine bedingte Sozio-Demografie-Sektion enthält.
 #'
-#' Ablauf pro Sitzung: Lehrkraft-Code, Erstbeurteilung ja/nein, "letzte
+#' Ablauf pro Sitzung: Lehrkraft-Code, Schüler-Code, beim ersten Ausfüllen einer
+#' Lehrkraft die Instruktion, Erstbeurteilung ja/nein, "letzte
 #' Sitzung vor den Schulferien" ja/nein, VdM-Stufe der aktuellen Literatur,
 #' Hauptstückwechsel ja/nein, dann die Item-Blöcke. Bei einer Erstbeurteilung
-#' entfallen die Ferien- und die Hauptstückwechsel-Frage. Pro Item wird L3 immer,
+#' entfallen die Ferien- und die Hauptstückwechsel-Frage. Die Auswahl der
+#' Instrumentengruppe entfällt bei einer Folgebeurteilung, wenn eine frühere
+#' Sitzung derselben Kombination aus Lehrkraft- und Schüler-Code die Gruppe
+#' enthält. Pro Item wird L3 immer,
 #' L2 nur in der letzten Sitzung vor den Schulferien und L1 nur ab der
 #' zweiten Beurteilung eines Kindes angezeigt. In der Kurzskala erscheint für
 #' die Items des automatic-controlled-Blocks (0035 bis 0038) nur L3.
 #' Am Ende steht ein optionales Freitextfeld für Anmerkungen (\code{comment}).
 #' Zwischenstände werden nach
-#' jedem Block gespeichert. Die Schüler-ID kommt über
-#' \code{MLP_standalone(with_id = TRUE)} (Feld \code{p_id}).
+#' jedem Block gespeichert. Der Schüler-Code wird als \code{p_id} gespeichert.
 #'
 #' Design: Antworten erscheinen als Karten (5-stufige Items nummeriert),
 #' eine angetippte Karte wird kurz markiert, dann folgt die nächste Seite.
@@ -81,13 +85,14 @@ mlp_prompt <- function(prompt, progress, type = c("item", "choice", "text", "int
 #'   angezeigt (feste Liste \code{mlp_shortscale_items} im Funktionskörper,
 #'   von Hand aus der Spalte "shortscale" in MLP_Itembank_3Ebenen.xlsx
 #'   abgeleitet). Standard: FALSE (alle Items).
-#' @param back_from_first (Logical) Zurück-Button auch auf der ersten Seite
-#'   (Willkommen) zeigen. Nur sinnvoll, wenn davor eine Seite mit
-#'   Zurück-Unterstützung liegt, wie die ID-Seite in \code{MLP_standalone()}.
+#' @param with_id (Logical) Schüler-Code nach dem Lehrkraft-Code abfragen und
+#'   als \code{p_id} setzen. Standard: FALSE (die Batterie vergibt die ID).
+#' @param validate_id (Closure oder "auto") Prüfung des Schüler-Codes, siehe
+#'   \code{\link{MLP_standalone}()}.
 #' @param ... Weitere Argumente.
 #' @export
 MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE,
-                back_from_first = FALSE, ...) {
+                with_id = FALSE, validate_id = "auto", ...) {
 
   # Kurzskalen-Filter: feste Liste der Item-IDs mit shortscale == "T" in
   # MLP_Itembank_3Ebenen.xlsx. Bei shortscale = TRUE werden nur diese Items
@@ -123,7 +128,7 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE,
   # Abfolge (alle drei Ebenen, größter Instrumentenblock). Übersprungene
   # Seiten (L1/L2, Sozio-Demografie) lassen den Balken nur springen.
   n_instr_max <- max(lengths(instrument_items))
-  pos_general    <- 10                                            # nach 6 Meta-, 2 Sozio-, 1 Intro-Seite
+  pos_general    <- 11                                            # nach 2 Code-, 2 Instruktions-, 4 Meta-, 2 Sozio-, 1 Intro-Seite
   pos_technique  <- pos_general + 3 * length(general_items) + 1
   pos_expression <- pos_technique + 3 * length(technique_items) + 1
   pos_group      <- pos_expression + 3 * length(expression_items)
@@ -208,21 +213,29 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE,
   }
   yes_no <- function(answer) c(CHOICE1 = "yes", CHOICE2 = "no")[[answer]]
   level_number <- function(answer) as.integer(sub("CHOICE", "", answer))
-  mlp_text_page <- function(label, key, pos, validate = NULL, one_line = TRUE) {
+  mlp_text_page <- function(label, key, pos, validate = NULL, one_line = TRUE,
+                            on_complete = NULL, back = TRUE) {
     mlp_page(psychTestR::text_input_page(
       label       = label,
       prompt      = mlp_prompt(psychTestR::i18n(key), pct(pos), "text", label),
       one_line    = one_line,
       width       = "100%",
       button_text = psychTestR::i18n("CONTINUE"),
-      validate    = validate
-    ))
+      validate    = validate,
+      on_complete = on_complete
+    ), back = back)
   }
-  mlp_intro_page <- function(key, pos, back = TRUE) {
+  mlp_intro_page <- function(key, pos) {
     mlp_page(psychTestR::one_button_page(
       body        = mlp_prompt(psychTestR::i18n(key), pct(pos), "intro"),
       button_text = psychTestR::i18n("CONTINUE")
-    ), back = back)
+    ))
+  }
+  mlp_guide_page <- function(body, pos, button_key) {
+    mlp_page(psychTestR::one_button_page(
+      body        = mlp_prompt(body, pct(pos), "guide"),
+      button_text = psychTestR::i18n(button_key)
+    ))
   }
   mlp_instrument_block <- function(group) {
     psychTestR::conditional(
@@ -247,20 +260,34 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE,
   psychTestR::join(
     psychTestR::begin_module(label = label),
 
-    # 1) Welcome
-    mlp_intro_page("TMLP_0001_PROMPT", 0, back = back_from_first),
-
-    # 2) Lehrkraft-Code (Pflichtfeld). Der Schüler-Code kommt über p_id,
-    #    siehe MLP_standalone(with_id = TRUE).
-    mlp_text_page("teacher_code", "TMLP_TEACHER_CODE_PROMPT", 1,
+    # 1) Lehrkraft-Code (Pflichtfeld), zugleich Begrüßung
+    mlp_text_page("teacher_code", "TMLP_TEACHER_CODE_PROMPT", 0, back = FALSE,
                   validate = function(answer, ...) {
                     if (nchar(trimws(answer)) > 0) TRUE
                     else "Bitte einen Code eingeben. / Please enter a code."
+                  },
+                  on_complete = function(answer, state, ...) {
+                    psychTestR::set_local("teacher_code", answer, state)
                   }),
+
+    # 2) Schüler-Code (Feld p_id, kein Ergebnis im Modul)
+    if (with_id) mlp_id_page(validate_id, mlp_prompt(psychTestR::i18n("ENTER_ID"), pct(1), "text", "p_id")),
+
+    # Frühere Sitzungen suchen -> Instruktion und Instrumentengruppe
+    mlp_lookup_block(),
+
+    # Instruktion, nur beim ersten Ausfüllen einer Lehrkraft
+    psychTestR::conditional(
+      test  = function(state, ...) isTRUE(psychTestR::get_local("new_teacher", state)),
+      logic = psychTestR::join(
+        mlp_guide_page(mlp_guide_flow(), 2, "CONTINUE"),
+        mlp_guide_page(mlp_guide_benefits(), 3, "TMLP_GUIDE_GO")
+      )
+    ),
 
     # 3) Erstbeurteilung dieses Kindes ja/nein -> steuert L1 und den
     #    Sozio-Demografie-Block
-    mlp_choice_page("firsttime", "TMLP_FIRSTTIME", 2, 2, recode = yes_no,
+    mlp_choice_page("firsttime", "TMLP_FIRSTTIME", 2, 4, recode = yes_no,
                     on_complete = function(answer, state, ...) {
                       first <- answer == "CHOICE1"
                       psychTestR::set_local("first_time", first, state)
@@ -272,28 +299,28 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE,
     #    (nur ab der zweiten Beurteilung)
     psychTestR::conditional(
       test  = function(state, ...) !isTRUE(psychTestR::get_local("first_time", state)),
-      logic = mlp_choice_page("pre_holiday", "TMLP_PRE_HOLIDAY", 2, 3, recode = yes_no,
+      logic = mlp_choice_page("pre_holiday", "TMLP_PRE_HOLIDAY", 2, 5, recode = yes_no,
                               on_complete = function(answer, state, ...) {
                                 psychTestR::set_local("pre_holiday", answer == "CHOICE1", state)
                               })
     ),
 
     # 5) VdM-Ausbildungsstufe der aktuell gespielten Literatur
-    mlp_choice_page("vdm_level", "TMLP_VDM_LEVEL", 5, 4, recode = level_number),
+    mlp_choice_page("vdm_level", "TMLP_VDM_LEVEL", 5, 6, recode = level_number),
 
     # 6) Hauptstückwechsel seit der letzten Beurteilung
     #    (nur ab der zweiten Beurteilung)
     psychTestR::conditional(
       test  = function(state, ...) !isTRUE(psychTestR::get_local("first_time", state)),
-      logic = mlp_choice_page("new_piece", "TMLP_NEW_PIECE", 2, 5, recode = yes_no)
+      logic = mlp_choice_page("new_piece", "TMLP_NEW_PIECE", 2, 7, recode = yes_no)
     ),
 
     # 7-8) Sozio-Demografie, nur bei Erstausfüllung
     psychTestR::conditional(
       test  = function(state, ...) isTRUE(psychTestR::get_local("first_time", state)),
       logic = psychTestR::join(
-        mlp_text_page("pupil_age", "TMLP_AGE_PROMPT", 6, validate = num_validate),
-        mlp_text_page("pupil_instrument", "TMLP_INSTRUMENT_PROMPT", 7)
+        mlp_text_page("pupil_age", "TMLP_AGE_PROMPT", 8, validate = num_validate),
+        mlp_text_page("pupil_instrument", "TMLP_INSTRUMENT_PROMPT", 9)
       )
     ),
     mlp_save_partial(),
@@ -313,17 +340,18 @@ MLP <- function(label = "MLP", dict = MLP::mlp_dict, shortscale = FALSE,
     mlp_block_pages(expression_items, pos_expression),
     mlp_save_partial(),
 
-    # Instrumentengruppe
-    mlp_choice_page("instrument_group", "TMLP_INSTRUMENT_GROUP", 5, pos_group,
-                    recode = function(answer) {
-                      c(CHOICE1 = "woodwind", CHOICE2 = "brass", CHOICE3 = "piano",
-                        CHOICE4 = "guitar", CHOICE5 = "strings")[[answer]]
-                    },
-                    on_complete = function(answer, state, ...) {
-                      group <- c(CHOICE1 = "Woodwind", CHOICE2 = "Brass", CHOICE3 = "Piano",
-                                 CHOICE4 = "Guitar", CHOICE5 = "Strings")[[answer]]
-                      psychTestR::set_local("instrument_group", group, state)
-                    }),
+    # Instrumentengruppe: bei einer Folgebeurteilung aus früheren Sitzungen,
+    # sonst Auswahlseite (auch wenn keine frühere Sitzung gefunden wird)
+    mlp_known_group_block(),
+    psychTestR::conditional(
+      test  = function(state, ...) is.null(psychTestR::get_local("instrument_group", state)),
+      logic = mlp_choice_page("instrument_group", "TMLP_INSTRUMENT_GROUP", 5, pos_group,
+                              recode = function(answer) mlp_groups[[answer]],
+                              on_complete = function(answer, state, ...) {
+                                psychTestR::set_local("instrument_group",
+                                                      mlp_group_local(answer), state)
+                              })
+    ),
 
     # instrumentenspezifische Items (nur die gewählte Gruppe)
     mlp_instrument_block("Woodwind"),
