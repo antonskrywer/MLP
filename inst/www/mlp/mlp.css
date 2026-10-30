@@ -141,24 +141,6 @@ body.mlp .mlp-guide-step:has(+ .mlp-guide-hint)::before { display: none; }
 body.mlp .mlp-guide-step:has(+ .mlp-guide-hint) { padding-bottom: 0; }
 body.mlp .mlp-guide-hint { margin: 6px 0 0 40px; }
 
-/* Tabelle: welche Perspektive wann */
-body.mlp .mlp-guide-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 13.5px; line-height: 1.3; }
-body.mlp .mlp-guide-table th { font-weight: normal; }
-body.mlp .mlp-guide-table th[scope="col"] {
-  color: var(--mlp-muted);
-  text-align: center;
-  vertical-align: bottom;
-  padding: 0 1px 6px;
-  font-size: 12px;
-}
-body.mlp .mlp-guide-table tr > :first-child { width: 38%; }
-body.mlp .mlp-guide-table th[scope="row"] { text-align: left; padding: 7px 4px 7px 0; }
-body.mlp .mlp-guide-table td { text-align: center; }
-body.mlp .mlp-guide-table th[scope="row"],
-body.mlp .mlp-guide-table td:not(:first-child) { border-top: 1px solid var(--mlp-border); }
-body.mlp .mlp-guide-yes { color: var(--mlp-accent); font-size: 17px; font-weight: bold; }
-body.mlp .mlp-guide-no { color: #aab4b9; }
-
 body.mlp .mlp-guide-benefit { margin-bottom: 12px; }
 body.mlp .mlp-guide-benefit:last-child { margin-bottom: 0; }
 body.mlp .mlp-guide-note { font-size: 14px; line-height: 1.4; }

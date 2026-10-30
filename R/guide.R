@@ -14,21 +14,6 @@ mlp_guide_step <- function(mark, key, outer = FALSE) {
   )
 }
 
-# Zeile der Tabelle "Welche Perspektive wann": `asked` je Spalte TRUE/FALSE
-mlp_guide_row <- function(key, asked) {
-  shiny::tags$tr(
-    shiny::tags$th(scope = "row", psychTestR::i18n(key)),
-    lapply(asked, function(yes) {
-      shiny::tags$td(
-        class = if (yes) "mlp-guide-yes" else "mlp-guide-no",
-        shiny::span(`aria-hidden` = "true", if (yes) "✓" else "–"),
-        shiny::span(class = "sr-only",
-                    psychTestR::i18n(if (yes) "TMLP_GUIDE_YES" else "TMLP_GUIDE_NO"))
-      )
-    })
-  )
-}
-
 mlp_guide_flow <- function() {
   shiny::div(
     shiny::h4(psychTestR::i18n("TMLP_GUIDE_FLOW_TITLE")),
@@ -45,22 +30,6 @@ mlp_guide_flow <- function() {
       ),
       mlp_guide_step("B", "TMLP_GUIDE_END", outer = TRUE),
       shiny::div(class = "mlp-guide-text mlp-guide-hint", psychTestR::i18n("TMLP_GUIDE_PRACTICE"))
-    ),
-    shiny::p(psychTestR::i18n("TMLP_GUIDE_PERSPECTIVES")),
-    shiny::div(
-      class = "mlp-guide-card",
-      shiny::tags$table(
-        class = "mlp-guide-table",
-        shiny::tags$tr(
-          shiny::tags$td(),
-          shiny::tags$th(scope = "col", psychTestR::i18n("TMLP_GUIDE_COL1")),
-          shiny::tags$th(scope = "col", psychTestR::i18n("TMLP_GUIDE_COL2")),
-          shiny::tags$th(scope = "col", psychTestR::i18n("TMLP_GUIDE_COL3"))
-        ),
-        mlp_guide_row("TMLP_GUIDE_ROW1", c(TRUE, TRUE, TRUE)),
-        mlp_guide_row("TMLP_GUIDE_ROW2", c(FALSE, TRUE, TRUE)),
-        mlp_guide_row("TMLP_GUIDE_ROW3", c(FALSE, FALSE, TRUE))
-      )
     )
   )
 }

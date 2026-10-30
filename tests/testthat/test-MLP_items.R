@@ -32,9 +32,8 @@ test_that("Alle neuen MLP-Dictionary-Keys existieren in DE und EN", {
             # Instruktion beim ersten Ausfüllen
             paste0("TMLP_GUIDE_", c("FLOW_TITLE", "FLOW_INTRO", "START_TITLE", "START_TEXT", "PARTS",
                                     paste0("PART", 1:3, "_TITLE"), paste0("PART", 1:3, "_TEXT"),
-                                    "END_TITLE", "END_TEXT", "PRACTICE", "PERSPECTIVES",
-                                    paste0("COL", 1:3), paste0("ROW", 1:3), "YES", "NO",
-                                    "BENEFIT_TITLE", paste0("BENEFIT", 1:3, "_TITLE"),
+                                    "END_TITLE", "END_TEXT", "PRACTICE",
+                                    "BENEFIT_TITLE",paste0("BENEFIT", 1:3, "_TITLE"),
                                     paste0("BENEFIT", 1:3, "_TEXT"),
                                     "NOTE_TIME", "NOTE_BACK", "GO")),
             # allgemeine Texte für ID-Seite, Schlussseite und Fußzeile
